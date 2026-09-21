@@ -1,10 +1,17 @@
-# <img src="Assets/icon.png" alt="Lychee for macOS" width="56" height="56" style="vertical-align: middle; margin-top: 8px"> Lychee for macOS
+# <img src="Assets/icon.ico" alt="Lychee for macOS" width="56" height="56" style="vertical-align: middle; margin-top: 8px"> Lychee for macOS
 
 English | [简体中文](./README.zh-CN.md)
 
-A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. This is the macOS port of [Lychee](https://github.com/Qinging-wu/Lychee) (Windows), rebuilt on .NET 8 + Avalonia UI. No installer, no background services.
+A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. Built on .NET 8 + Avalonia UI. No installer, no background services.
 
-The module architecture is shared with the Windows original; the UI layer and platform data sources are macOS-specific.
+## 🔗 Relationship with Lychee (Windows)
+
+Lychee for macOS is the macOS sibling of [Lychee](https://github.com/Qinging-wu/Lychee), the Windows version of this floating ball:
+
+- **Same product, ported interactions** — the floating ball, info panel, settings, and module toggles mirror the Windows version's behavior.
+- **Shared architecture, separate codebase** — `Core/` (module interface, manager, settings) keeps the same shape as the Windows repo, while the UI layer is rewritten on Avalonia because WPF/WinForms are Windows-only.
+- **Independently versioned** — this repo has its own releases and changelog starting at v1.0.0; version numbers do not track the Windows version.
+- **No Frame Performance (FPS) here** — the Windows version's frame monitoring (DWM desktop output / PresentMon per-app capture) relies on Windows-only APIs and is intentionally not ported to this repo. All other core modules are available.
 
 ## ✨ Features
 

@@ -1,10 +1,17 @@
-# <img src="Assets/icon.png" alt="Lychee for macOS" width="56" height="56" style="vertical-align: middle; margin-top: 8px"> Lychee for macOS
+# <img src="Assets/icon.ico" alt="Lychee for macOS" width="56" height="56" style="vertical-align: middle; margin-top: 8px"> Lychee for macOS
 
 [English](./README.md) | 简体中文
 
-一个极小的 macOS 桌面悬浮球，置顶显示日期时间、网速、公网 IP、CPU、内存和延迟。鼠标悬停展开信息面板，移开自动收起。本项目是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows 版）的 macOS 移植，基于 .NET 8 + Avalonia UI 重写。无需安装、无后台服务。
+一个极小的 macOS 桌面悬浮球，置顶显示日期时间、网速、公网 IP、CPU、内存和延迟。鼠标悬停展开信息面板，移开自动收起。基于 .NET 8 + Avalonia UI 构建。无需安装、无后台服务。
 
-模块架构与 Windows 原版同构，UI 层和平台数据源为 macOS 专属实现。
+## 🔗 与 Lychee（Windows 版）的关系
+
+Lychee for macOS 是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows 版悬浮球）的 macOS 姊妹仓库：
+
+- **同一产品，交互同源** — 悬浮球、信息面板、设置和模块开关的行为均从 Windows 版移植而来。
+- **架构同构，代码独立** — `Core/`（模块接口、管理器、设置）与 Windows 仓库保持相同结构；UI 层因 WPF/WinForms 无法在 macOS 运行而改用 Avalonia 重写。
+- **版本各自独立** — 本仓库拥有独立的发布线和更新日志，从 v1.0.0 起步，版本号不与 Windows 版对齐。
+- **本仓库没有帧性能（FPS）** — Windows 版的帧监控（DWM 桌面输出 / PresentMon 前台应用采集）依赖 Windows 专属 API，不向本仓库移植。其余核心模块均可用。
 
 ## ✨ 功能
 
