@@ -30,7 +30,7 @@ Lychee for macOS 是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows �
 |---|---|---|
 | UI 框架 | WPF + WinForms | Avalonia UI 11 |
 | 帧性能（FPS） | ✅ DWM / PresentMon | ❌ 未移植（依赖 Windows 专属 API） |
-| 弹跳球 / 自定义球图 | ✅ / ✅ | ❌ 未移植 |
+| 弹跳球 | ✅ | ❌ 未移植 |
 | IP 变化提醒 | 应用内 Toast + 托盘气泡 | 应用内 Toast + 系统通知（AppleScript） |
 | 内存副行 | 空闲 + 页面文件 | 仅空闲（macOS 无页面文件） |
 
