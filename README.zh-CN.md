@@ -2,7 +2,7 @@
 
 [English](./README.md) | 简体中文
 
-一个极小的 macOS 桌面悬浮球，置顶显示日期时间、网速、公网 IP、CPU、内存和延迟。鼠标悬停展开信息面板，移开自动收起。基于 .NET 8 + Avalonia UI 构建。无需安装、无后台服务。
+一个极小的 macOS 桌面悬浮球，置顶显示日期时间、网速、公网 IP、CPU、内存和延迟。鼠标悬停展开信息面板，移开自动收起。基于 .NET 8 + Avalonia UI 构建。当前没有安装程序或 `.app` 包，也不会安装后台服务。
 
 ## 🔗 与 Lychee（Windows 版）的关系
 
@@ -32,7 +32,7 @@ Lychee for macOS 是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows �
 | 帧性能（FPS） | ✅ DWM / PresentMon | ❌ 未移植（依赖 Windows 专属 API） |
 | 弹跳球 / 自定义球图 | ✅ / ✅ | ❌ 未移植 |
 | IP 变化提醒 | 应用内 Toast + 托盘气泡 | 应用内 Toast + 系统通知（AppleScript） |
-| 内存副行 | 空闲 + 页面文件 | 仅空闲（macOS 无页面文件） |
+| 内存副行 | 空闲 + 页面文件 | 仅空闲（不展示 Windows 风格的页面文件字段） |
 
 ## 🖱️ 使用
 
@@ -47,9 +47,9 @@ Lychee for macOS 是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows �
 
 公网 IP 发生变化时（可能是 VPN 掉线或网络切换），右下角弹出红色提醒，系统通知显示新旧 IP。
 
-## 🚀 快速开始
+## 🚀 当前安装状态与快速开始
 
-从源码构建（打包版本和 .app bundle 后续推出）：
+目前没有 Homebrew、`.pkg`、`.dmg` 或 `.app` 安装包。因此，下面的方式是“从源码构建并运行”，需要在 Mac 上安装 **.NET SDK 8.0+**：
 
 ```bash
 git clone https://github.com/Qinging-wu/Lychee4MacOS.git
@@ -63,17 +63,34 @@ dotnet run
 
 关闭方式：点击面板上的 **✕**，或菜单栏图标 → Quit Lychee。
 
+### 命令行安装（自包含可执行文件）
+
+可以通过命令行发布到用户目录并运行，但这不是 macOS 原生应用安装：不会生成 `.app`，也不会出现在“应用程序”目录或 Launchpad 中。
+
+Apple Silicon：
+
+```bash
+mkdir -p "$HOME/.local/lib/lychee" "$HOME/.local/bin"
+dotnet publish -c Release -r osx-arm64 --self-contained true \
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -o "$HOME/.local/lib/lychee"
+ln -sf "$HOME/.local/lib/lychee/Lychee" "$HOME/.local/bin/lychee"
+"$HOME/.local/bin/lychee"
+```
+
+Intel Mac 将 `osx-arm64` 替换为 `osx-x64`。自包含发布后，目标 Mac 不需要另装 .NET Runtime，但构建时仍需要 .NET SDK。首次运行时如果 macOS 拦截未签名程序，请在“系统设置 → 隐私与安全性”中允许打开。
+
 ## 🔧 构建
 
 ```bash
 dotnet build -c Release
 ```
 
-发布自包含的可执行文件（暂无 .app bundle）：
+发布自包含的可执行文件（暂无 `.app` bundle）：
 
 ```bash
-dotnet publish -c Release -r osx-arm64   # Apple Silicon
-dotnet publish -c Release -r osx-x64     # Intel
+dotnet publish -c Release -r osx-arm64 --self-contained true   # Apple Silicon
+dotnet publish -c Release -r osx-x64 --self-contained true     # Intel
 ```
 
 产物路径：`bin/Release/net8.0/osx-arm64/publish/Lychee` — 在终端直接运行。
@@ -165,11 +182,11 @@ _moduleManager.RegisterModule(new WeatherModule());
 ## ⚠️ 已知限制
 
 - 帧性能（FPS）不可用——DWM 与 PresentMon 是 Windows 专属
-- 内存为估算值：已用 = 总量 − (free + inactive 页)。与活动监视器变化方向一致，但数值口径不同
+- 内存为估算值：已用 = 总量 − (free + inactive 页)。与活动监视器变化方向一致，但数值口径不同；macOS 的 swap/虚拟内存不单独展示
 - 系统通知通过 AppleScript（`display notification`）发送；首次使用时 macOS 可能要求允许"脚本编辑器"发送通知
 - 部分独占全屏应用可能仍会盖住悬浮球
 - Retina 与多显示器坐标处理已实现，但尚未在真机上充分验证——如果悬浮球、吸附或提醒位置异常，请附上"系统设置 → 显示器"的排布截图反馈
-- 暂无 .app bundle：请通过 `dotnet run` 或终端运行发布产物
+- 暂无 `.app` bundle：请通过 `dotnet run` 或终端运行发布产物；当前也没有可直接下载的安装包
 
 ## 🤝 社区与贡献
 

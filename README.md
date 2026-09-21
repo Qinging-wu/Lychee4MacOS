@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.zh-CN.md)
 
-A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. Built on .NET 8 + Avalonia UI. No installer, no background services.
+A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. Built on .NET 8 + Avalonia UI. There is currently no installer or `.app` bundle, and no background service is installed.
 
 ## 🔗 Relationship with Lychee (Windows)
 
@@ -32,7 +32,7 @@ Each module can be toggled on/off individually in Settings.
 | Frame Performance (FPS) | ✅ DWM / PresentMon | ❌ Not ported (Windows-only APIs) |
 | Bouncy ball / custom ball image | ✅ / ✅ | ❌ Not ported |
 | IP change alert | In-app toast + tray balloon | In-app toast + system notification (AppleScript) |
-| Memory detail line | Free + page file | Free only (macOS has no page file) |
+| Memory detail line | Free + page file | Free only (does not show a Windows-style page-file field) |
 
 ## 🖱️ Usage
 
@@ -47,9 +47,9 @@ Each module can be toggled on/off individually in Settings.
 
 When the public IP changes (possible VPN drop or network switch), a red toast pops up in the bottom-right corner and a system notification shows the old and new IPs.
 
-## 🚀 Quick start
+## 🚀 Installation status and quick start
 
-Build from source (packaged releases and a `.app` bundle may come later):
+There is currently no Homebrew formula, `.pkg`, `.dmg`, or `.app` installer. The following builds and runs the project from source and requires the **.NET 8.0+ SDK** on the Mac:
 
 ```bash
 git clone https://github.com/Qinging-wu/Lychee4MacOS.git
@@ -63,6 +63,23 @@ The floating ball appears on the right edge of the screen and a Lychee icon is a
 
 To close, click **✕** on the panel or use the menu-bar icon → Quit Lychee.
 
+### Command-line installation (self-contained executable)
+
+You can publish the app into a user directory and run it from the command line, but this is not a native macOS application install: it does not create an `.app` bundle or add Lychee to Applications or Launchpad.
+
+Apple Silicon:
+
+```bash
+mkdir -p "$HOME/.local/lib/lychee" "$HOME/.local/bin"
+dotnet publish -c Release -r osx-arm64 --self-contained true \
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -o "$HOME/.local/lib/lychee"
+ln -sf "$HOME/.local/lib/lychee/Lychee" "$HOME/.local/bin/lychee"
+"$HOME/.local/bin/lychee"
+```
+
+On an Intel Mac, replace `osx-arm64` with `osx-x64`. After a self-contained publish, the target Mac does not need a separate .NET Runtime, but the .NET SDK is still required to build it. If macOS blocks the unsigned executable on first launch, allow it under **System Settings → Privacy & Security**.
+
 ## 🔧 Build
 
 ```bash
@@ -72,8 +89,8 @@ dotnet build -c Release
 Publish a self-contained raw executable (no `.app` bundle yet):
 
 ```bash
-dotnet publish -c Release -r osx-arm64   # Apple Silicon
-dotnet publish -c Release -r osx-x64     # Intel
+dotnet publish -c Release -r osx-arm64 --self-contained true   # Apple Silicon
+dotnet publish -c Release -r osx-x64 --self-contained true     # Intel
 ```
 
 Output: `bin/Release/net8.0/osx-arm64/publish/Lychee` — run it directly from a terminal.
@@ -165,11 +182,11 @@ Logs: `~/Library/Application Support/Lychee/logs/lychee.log`
 ## ⚠️ Known limitations
 
 - Frame Performance (FPS) is not available — DWM and PresentMon are Windows-only
-- RAM is an estimate: used = total − (free + inactive pages). It moves in the same direction as Activity Monitor but the exact figures differ by design
+- RAM is an estimate: used = total − (free + inactive pages). It moves in the same direction as Activity Monitor but the exact figures differ by design; macOS swap/virtual memory is not shown separately
 - System notifications are posted via AppleScript (`display notification`); macOS may ask you to allow notifications from "Script Editor" the first time
 - Some exclusive fullscreen apps may still cover the ball despite topmost
 - Retina and multi-monitor coordinate handling is implemented but not yet broadly verified on real hardware — if the ball, snapping, or toasts look misplaced, please report with your display arrangement (screenshot of System Settings → Displays)
-- No `.app` bundle yet: run via `dotnet run` or the published executable from a terminal
+- No `.app` bundle yet: run via `dotnet run` or the published executable from a terminal; there is currently no downloadable installer
 
 ## 🤝 Community
 
