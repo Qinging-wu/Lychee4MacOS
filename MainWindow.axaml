@@ -1,0 +1,93 @@
+<Window x:Class="Lychee.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="using:Lychee"
+        Title="Lychee"
+        Width="56" Height="56"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        SystemDecorations="None"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        CanResize="False"
+        Opened="Window_Opened"
+        Deactivated="Window_Deactivated">
+    <Canvas x:Name="RootCanvas" ClipToBounds="True">
+        <!-- Info panel (position set from code) -->
+        <Border x:Name="PanelBorder" Canvas.Left="0" Canvas.Top="4" Width="260"
+                Background="#E61E1E2E" CornerRadius="12" IsVisible="False">
+            <DockPanel LastChildFill="True" Margin="6">
+                <Border DockPanel.Dock="Top" Background="#33FFFFFF" CornerRadius="6" Padding="8,5" Margin="0,0,0,6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="Lychee" Foreground="#FFB5DE56" FontWeight="Bold" FontSize="13"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="2">
+                            <Button x:Name="PinButton" Click="Pin_Click" ToolTip.Tip="Pin / Unpin"
+                                    Width="24" Height="24" Background="Transparent" Padding="0"
+                                    FontSize="13" Foreground="White" Cursor="Hand" Content="📌"/>
+                            <Button x:Name="SettingsButton" Click="Settings_Click" ToolTip.Tip="Settings"
+                                    Width="24" Height="24" Background="Transparent" Padding="0"
+                                    FontSize="13" Foreground="White" Cursor="Hand" Content="⚙"/>
+                            <Button x:Name="HideButton" Click="Hide_Click" ToolTip.Tip="Collapse"
+                                    Width="24" Height="24" Background="Transparent" Padding="0"
+                                    FontSize="15" Foreground="White" Cursor="Hand" Content="›"/>
+                            <Button x:Name="QuitButton" Click="Quit_Click" ToolTip.Tip="Quit Lychee"
+                                    Width="24" Height="24" Background="Transparent" Padding="0"
+                                    FontSize="13" FontWeight="Bold" Foreground="#FFEB5757" Cursor="Hand" Content="✕"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                    <ItemsControl x:Name="ModuleList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#22FFFFFF" CornerRadius="6" Padding="8,6" Margin="0,3"
+                                        ToolTip.Tip="{Binding Detail}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14"
+                                                       Foreground="#FFF85556" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="#FFCCCCCC" FontSize="11"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding CurrentValue}" Foreground="White" FontSize="13"
+                                                   TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock Text="{Binding Detail}" Foreground="#FF8F8F9F" FontSize="10"
+                                                   TextWrapping="Wrap" Margin="0,4,0,0"
+                                                   IsVisible="{Binding Detail, Converter={x:Static conv:HasTextConverter.Instance}}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Soft circular glow behind the ball -->
+        <Ellipse x:Name="BallGlow" Canvas.Left="0" Canvas.Top="0" Width="56" Height="56"
+                 IsHitTestVisible="False" Opacity="0.6">
+            <Ellipse.Fill>
+                <RadialGradientBrush Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                    <GradientStop Color="#005B8CFF" Offset="0"/>
+                    <GradientStop Color="#FF5B8CFF" Offset="0.85"/>
+                    <GradientStop Color="#005B8CFF" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <!-- Floating ball (position set from code) -->
+        <Ellipse x:Name="BallEllipse" Canvas.Left="4" Canvas.Top="4" Width="48" Height="48"
+                 RenderTransformOrigin="0.5,0.5"
+                 Cursor="SizeAll"
+                 PointerPressed="Ball_PointerPressed"
+                 PointerReleased="Ball_PointerReleased"
+                 PointerMoved="Ball_PointerMoved">
+            <Ellipse.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+    </Canvas>
+</Window>

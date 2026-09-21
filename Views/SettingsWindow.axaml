@@ -1,0 +1,44 @@
+<Window x:Class="Lychee.Views.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lychee Settings"
+        Width="360"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="16" Spacing="12">
+        <TextBlock Text="Settings" FontSize="18" FontWeight="Bold" Foreground="#FFB5DE56"/>
+
+        <Border Background="#22FFFFFF" CornerRadius="8" Padding="12">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Modules" FontWeight="SemiBold" Foreground="#FFCCCCCC"/>
+                <ItemsControl x:Name="ModuleToggleList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding DisplayName}"
+                                      IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                      Checked="ModuleToggle_Changed"
+                                      Unchecked="ModuleToggle_Changed"
+                                      Margin="0,2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <Border Background="#22FFFFFF" CornerRadius="8" Padding="12">
+            <StackPanel Spacing="10">
+                <TextBlock Text="Behavior" FontWeight="SemiBold" Foreground="#FFCCCCCC"/>
+                <CheckBox x:Name="AlwaysShowCheckBox" Content="Always show panel (pin)"
+                          Checked="AlwaysShow_Changed" Unchecked="AlwaysShow_Changed"/>
+                <CheckBox x:Name="SnapCheckBox" Content="Snap to nearest screen edge"
+                          Checked="Snap_Changed" Unchecked="Snap_Changed"/>
+                <CheckBox x:Name="AlertIpCheckBox" Content="Alert when public IP changes"
+                          Checked="AlertIp_Changed" Unchecked="AlertIp_Changed"/>
+                <CheckBox x:Name="AlertQueryFailCheckBox" Content="Alert on query failure / recovery"
+                          Checked="AlertQueryFail_Changed" Unchecked="AlertQueryFail_Changed"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

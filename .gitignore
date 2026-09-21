@@ -1,0 +1,18 @@
+# Build artifacts
+bin/
+obj/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+*.zip
+
+# Local working notes (not published)
+MACOS_EXPERIENCE_REVIEW.md
