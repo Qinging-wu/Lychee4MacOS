@@ -30,7 +30,7 @@ Each module can be toggled on/off individually in Settings.
 |---|---|---|
 | UI framework | WPF + WinForms | Avalonia UI 11 |
 | Frame Performance (FPS) | ✅ DWM / PresentMon | ❌ Not ported (Windows-only APIs) |
-| Bouncy ball / custom ball image | ✅ / ✅ | ❌ Not ported |
+| Bouncy ball  | ✅ | ❌ Not ported |
 | IP change alert | In-app toast + tray balloon | In-app toast + system notification (AppleScript) |
 | Memory detail line | Free + page file | Free only (does not show a Windows-style page-file field) |
 
