@@ -44,6 +44,7 @@ public partial class MainWindow : Window
     private bool _dragStarted;
     private bool _restorePinnedAfterDrag;
     private Point _dragStartCursor;              // screen space (same units as Window.Position)
+    private PixelPoint _dragOriginWindow;        // window origin when the drag gesture began
 
     public MainWindow()
     {
@@ -204,6 +205,7 @@ public partial class MainWindow : Window
     private void Window_Opened(object? sender, EventArgs e)
     {
         MacAppActivation.SetAccessory();
+        _tray.ApplyStatusIcon();
         PositionToRightEdge();
         StartModules();
         ApplySettings();
@@ -302,43 +304,59 @@ public partial class MainWindow : Window
         _isExpanded = true;
 
         var ballScreen = BallScreenPos();
+        var screen = ScreenFromWindowOrFallback();
+        var wa = screen != null ? GetWorkAreaPx(screen) : GetVirtualScreenPx();
 
         var visibleModules = _moduleManager.Modules.Count(m => m.IsEnabled);
         var targetHeight = CalcExpandedHeight(visibleModules);
         var targetWidth = PanelWidth + BallSlot + PanelMargin;
 
+        // Place the ball inside the expanded window so it stays on the same
+        // screen pixel. If that window would cross the menu bar or dock,
+        // clamp the window and slide the ball inside it by the same amount.
+        var ballLeft = _isRightSide ? PanelWidth + PanelMargin : BallMargin;
+        var ballTop = _isBottomSide ? targetHeight - BallSlot + BallMargin : BallMargin;
+        var windowLeft = ballScreen.X - ballLeft;
+        var windowTop = ballScreen.Y - ballTop;
+
+        if (windowTop < wa.Y)
+        {
+            ballTop -= wa.Y - windowTop;
+            windowTop = wa.Y;
+        }
+        if (windowTop + targetHeight > wa.Bottom)
+        {
+            var overflow = windowTop + targetHeight - wa.Bottom;
+            windowTop -= overflow;
+            ballTop += overflow;
+            if (windowTop < wa.Y)
+            {
+                ballTop -= wa.Y - windowTop;
+                windowTop = wa.Y;
+            }
+        }
+        if (windowLeft < wa.X)
+        {
+            ballLeft -= wa.X - windowLeft;
+            windowLeft = wa.X;
+        }
+        if (windowLeft + targetWidth > wa.Right)
+        {
+            var overflow = windowLeft + targetWidth - wa.Right;
+            windowLeft -= overflow;
+            ballLeft += overflow;
+        }
+
+        SetWindowPosPx(windowLeft, windowTop);
         Width = targetWidth;
         Height = targetHeight;
 
         PanelBorder.Height = targetHeight - PanelMargin * 2;
         PanelBorder.IsVisible = true;
-
-        if (_isRightSide)
-        {
-            Canvas.SetLeft(PanelBorder, PanelMargin);
-            Canvas.SetLeft(BallEllipse, PanelWidth + PanelMargin);
-            SetWindowPosPx(ballScreen.X - DipToScreen(PanelWidth + PanelMargin), Position.Y);
-        }
-        else
-        {
-            Canvas.SetLeft(BallEllipse, BallMargin);
-            Canvas.SetLeft(PanelBorder, BallSlot);
-            SetWindowPosPx(ballScreen.X - DipToScreen(BallMargin), Position.Y);
-        }
-
-        if (_isBottomSide)
-        {
-            // expand upward when docked to bottom
-            SetWindowPosPx(Position.X, ballScreen.Y - DipToScreen(targetHeight - BallSlot + BallMargin));
-            Canvas.SetTop(BallEllipse, targetHeight - BallSlot + BallMargin);
-            Canvas.SetTop(PanelBorder, PanelMargin);
-        }
-        else
-        {
-            SetWindowPosPx(Position.X, ballScreen.Y - DipToScreen(BallMargin));
-            Canvas.SetTop(BallEllipse, BallMargin);
-            Canvas.SetTop(PanelBorder, PanelMargin);
-        }
+        Canvas.SetLeft(PanelBorder, _isRightSide ? PanelMargin : BallSlot);
+        Canvas.SetTop(PanelBorder, PanelMargin);
+        Canvas.SetLeft(BallEllipse, ballLeft);
+        Canvas.SetTop(BallEllipse, ballTop);
 
         SyncBallGlow();
 
@@ -427,6 +445,10 @@ public partial class MainWindow : Window
             CollapsePanel(immediate: true, force: _settings.Current.AlwaysShowPanel);
         }
 
+        // Collapse keeps the ball put but moves the window. Record the origin
+        // after that, and add the cursor delta to this fixed origin. Adding it
+        // to Position each move compounds the displacement and the ball runs away.
+        _dragOriginWindow = Position;
         _isDragging = false;
         _dragStarted = false;
         e.Pointer.Capture(BallEllipse);
@@ -450,8 +472,8 @@ public partial class MainWindow : Window
 
         if (_isDragging)
         {
-            var newLeft = Position.X + dx;
-            var newTop = Position.Y + dy;
+            var newLeft = _dragOriginWindow.X + dx;
+            var newTop = _dragOriginWindow.Y + dy;
 
             var vs = GetVirtualScreenPx();
             var slot = DipToScreen(BallSlot);
