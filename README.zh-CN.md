@@ -4,6 +4,8 @@
 
 一个极小的 macOS 桌面悬浮球，置顶显示日期时间、网速、公网 IP、CPU、内存和延迟。鼠标悬停展开信息面板，移开自动收起。基于 .NET 8 + Avalonia UI 构建。当前没有安装程序或 `.app` 包，也不会安装后台服务。
 
+## 注意！此项目目前仍在测试。使用起来有一些问题。
+
 ## 🔗 与 Lychee（Windows 版）的关系
 
 Lychee for macOS 是 [Lychee](https://github.com/Qinging-wu/Lychee)（Windows 版悬浮球）的 macOS 姊妹仓库：
