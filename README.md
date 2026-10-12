@@ -4,6 +4,8 @@ English | [简体中文](./README.zh-CN.md)
 
 A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. Built on .NET 8 + Avalonia UI. There is currently no installer or `.app` bundle, and no background service is installed.
 
+## Attention! This project is currently still in testing. There are some issues with its use.
+
 ## 🔗 Relationship with Lychee (Windows)
 
 Lychee for macOS is the macOS sibling of [Lychee](https://github.com/Qinging-wu/Lychee), the Windows version of this floating ball:
