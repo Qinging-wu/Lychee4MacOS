@@ -7,6 +7,7 @@
 | 🎨 Floating ball styles | Choose a built-in style or import a PNG, JPEG, BMP, or GIF image |
 | ↔️ Resizable panel | Drag the outer edge or corner of the expanded panel; the floating ball stays in place |
 | 🖌️ Custom panel appearance | Set background opacity, background and text RGB colors, and a system font, with preview and reset |
+| 🎯 Precise color picker | Pick panel colors from an HSV spectrum, RGB sliders, or Hex input |
 
 ## v1.0.0
 

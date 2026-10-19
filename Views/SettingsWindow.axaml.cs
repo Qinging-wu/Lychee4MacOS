@@ -146,6 +146,52 @@ public partial class SettingsWindow : Window
         RefreshAppearancePreview();
     }
 
+    private async void PickBackgroundColor_Click(object? sender, RoutedEventArgs e) => await PickColorAsync(background: true);
+
+    private async void PickTextColor_Click(object? sender, RoutedEventArgs e) => await PickColorAsync(background: false);
+
+    private async Task PickColorAsync(bool background)
+    {
+        var settings = _settings.Current;
+        var redBox = background ? BackgroundRedTextBox : TextRedTextBox;
+        var greenBox = background ? BackgroundGreenTextBox : TextGreenTextBox;
+        var blueBox = background ? BackgroundBlueTextBox : TextBlueTextBox;
+        if (!TryColor(redBox, greenBox, blueBox, out var initial))
+        {
+            initial = background
+                ? Color.FromRgb((byte)Math.Clamp(settings.PanelBackgroundRed, 0, 255), (byte)Math.Clamp(settings.PanelBackgroundGreen, 0, 255), (byte)Math.Clamp(settings.PanelBackgroundBlue, 0, 255))
+                : Color.FromRgb((byte)Math.Clamp(settings.PanelTextRed, 0, 255), (byte)Math.Clamp(settings.PanelTextGreen, 0, 255), (byte)Math.Clamp(settings.PanelTextBlue, 0, 255));
+        }
+
+        var picker = new ColorPickerWindow(initial);
+        var selected = await picker.ShowDialog<Color?>(this);
+        if (selected is not Color color) return;
+
+        _isInitialized = false;
+        redBox.Text = color.R.ToString(CultureInfo.InvariantCulture);
+        greenBox.Text = color.G.ToString(CultureInfo.InvariantCulture);
+        blueBox.Text = color.B.ToString(CultureInfo.InvariantCulture);
+        _isInitialized = true;
+        _settings.Update(s =>
+        {
+            s.UseCustomPanelAppearance = true;
+            if (background)
+            {
+                s.PanelBackgroundRed = color.R;
+                s.PanelBackgroundGreen = color.G;
+                s.PanelBackgroundBlue = color.B;
+            }
+            else
+            {
+                s.PanelTextRed = color.R;
+                s.PanelTextGreen = color.G;
+                s.PanelTextBlue = color.B;
+            }
+        });
+        UseCustomAppearanceCheckBox.IsChecked = true;
+        RefreshAppearancePreview();
+    }
+
     private void UseCustomAppearance_Changed(object? sender, RoutedEventArgs e)
     {
         if (!_isInitialized) return;

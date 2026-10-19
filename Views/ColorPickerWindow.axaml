@@ -1,0 +1,82 @@
+<Window x:Class="Lychee.Views.ColorPickerWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Precise color" Width="382" Height="500"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner" Background="#FF1E232B" Foreground="#FFE2E8EF">
+    <Grid Margin="12" RowDefinitions="230,Auto,Auto,*,Auto" ColumnDefinitions="*,44">
+        <Border Grid.Row="0" Grid.Column="0" Margin="0,0,10,10"
+                BorderBrush="#FF58616C" BorderThickness="1" ClipToBounds="True">
+            <Grid x:Name="SpectrumSurface" Background="Red"
+                  PointerPressed="Spectrum_PointerPressed"
+                  PointerMoved="Spectrum_PointerMoved"
+                  PointerReleased="Spectrum_PointerReleased"
+                  SizeChanged="Spectrum_SizeChanged">
+                <Rectangle IsHitTestVisible="False">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle IsHitTestVisible="False">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#00000000" Offset="0"/>
+                            <GradientStop Color="Black" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Canvas IsHitTestVisible="False">
+                    <Ellipse x:Name="SpectrumMarker" Width="18" Height="18"
+                             Stroke="White" StrokeThickness="2" Fill="#22000000"/>
+                </Canvas>
+            </Grid>
+        </Border>
+        <Slider x:Name="HueSlider" Grid.Row="0" Grid.Column="1" Margin="0,2,0,12"
+                Minimum="0" Maximum="359" Orientation="Vertical"
+                ValueChanged="Hue_Changed">
+            <Slider.Background>
+                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                    <GradientStop Color="Red" Offset="0"/>
+                    <GradientStop Color="#FFFF00" Offset="0.17"/>
+                    <GradientStop Color="#00FF00" Offset="0.33"/>
+                    <GradientStop Color="#00FFFF" Offset="0.5"/>
+                    <GradientStop Color="#0000FF" Offset="0.67"/>
+                    <GradientStop Color="#FF00FF" Offset="0.83"/>
+                    <GradientStop Color="Red" Offset="1"/>
+                </LinearGradientBrush>
+            </Slider.Background>
+        </Slider>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Hex:" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="HexTextBox" Grid.Row="1" Grid.Column="0" Margin="48,0,0,8"
+                 Height="34" TextAlignment="Center" VerticalContentAlignment="Center"
+                 FontFamily="Consolas" TextChanged="Hex_Changed"/>
+        <Border x:Name="ColorSwatch" Grid.Row="1" Grid.Column="1" Width="38" Height="34"
+                CornerRadius="4" BorderBrush="#FF8995A3" BorderThickness="1" Margin="0,0,2,8"/>
+
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,2"
+              ColumnDefinitions="24,48,*" RowDefinitions="30,30,30">
+            <TextBlock Grid.Row="0" Text="R:" VerticalAlignment="Center" Foreground="#FFFF6666"/>
+            <TextBox x:Name="RedTextBox" Grid.Row="0" Grid.Column="1" MaxLength="3"
+                     VerticalContentAlignment="Center" TextChanged="RgbText_Changed"/>
+            <Slider x:Name="RedSlider" Grid.Row="0" Grid.Column="2" Minimum="0" Maximum="255" ValueChanged="RgbSlider_Changed"/>
+            <TextBlock Grid.Row="1" Text="G:" VerticalAlignment="Center" Foreground="#FF73C878"/>
+            <TextBox x:Name="GreenTextBox" Grid.Row="1" Grid.Column="1" MaxLength="3"
+                     VerticalContentAlignment="Center" TextChanged="RgbText_Changed"/>
+            <Slider x:Name="GreenSlider" Grid.Row="1" Grid.Column="2" Minimum="0" Maximum="255" ValueChanged="RgbSlider_Changed"/>
+            <TextBlock Grid.Row="2" Text="B:" VerticalAlignment="Center" Foreground="#FF65A8F0"/>
+            <TextBox x:Name="BlueTextBox" Grid.Row="2" Grid.Column="1" MaxLength="3"
+                     VerticalContentAlignment="Center" TextChanged="RgbText_Changed"/>
+            <Slider x:Name="BlueSlider" Grid.Row="2" Grid.Column="2" Minimum="0" Maximum="255" ValueChanged="RgbSlider_Changed"/>
+        </Grid>
+
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,10,0,0" Spacing="8">
+            <Button Content="Cancel" Width="78" Click="Cancel_Click"/>
+            <Button Content="Choose" Width="78" IsDefault="True" Click="Choose_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

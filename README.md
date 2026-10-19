@@ -15,7 +15,7 @@ Lychee is a small floating system monitor for macOS. Its always-on-top ball open
 - Network latency to several public endpoints
 - Built-in floating ball designs, plus custom PNG, JPEG, BMP, and animated GIF images
 - Resizable information panel
-- Panel appearance settings for background opacity, background and text colors, and system font, with preview and reset
+- Panel appearance settings for background opacity, background and text colors, and system font, with preview and reset; the precise color picker offers an HSV spectrum, RGB sliders, and Hex input
 - Optional per-module toggles, pinning, and edge snapping
 - Menu bar controls for showing the panel, opening settings, and quitting
 

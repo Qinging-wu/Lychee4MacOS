@@ -44,15 +44,17 @@
                               Checked="UseCustomAppearance_Changed" Unchecked="UseCustomAppearance_Changed"/>
                     <TextBlock Text="Background RGB (0–255)" Foreground="#FFCCCCCC"/>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBox x:Name="BackgroundRedTextBox" Watermark="R" Width="58" TextChanged="AppearanceColor_Changed"/>
-                        <TextBox x:Name="BackgroundGreenTextBox" Watermark="G" Width="58" TextChanged="AppearanceColor_Changed"/>
-                        <TextBox x:Name="BackgroundBlueTextBox" Watermark="B" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="BackgroundRedTextBox" Watermark="R" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="BackgroundGreenTextBox" Watermark="G" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="BackgroundBlueTextBox" Watermark="B" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <Button Content="Pick…" Margin="5,0,0,0" Click="PickBackgroundColor_Click"/>
                     </StackPanel>
                     <TextBlock Text="Text RGB (0–255)" Foreground="#FFCCCCCC"/>
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBox x:Name="TextRedTextBox" Watermark="R" Width="58" TextChanged="AppearanceColor_Changed"/>
-                        <TextBox x:Name="TextGreenTextBox" Watermark="G" Width="58" TextChanged="AppearanceColor_Changed"/>
-                        <TextBox x:Name="TextBlueTextBox" Watermark="B" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="TextRedTextBox" Watermark="R" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="TextGreenTextBox" Watermark="G" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="TextBlueTextBox" Watermark="B" Width="48" TextChanged="AppearanceColor_Changed"/>
+                        <Button Content="Pick…" Margin="5,0,0,0" Click="PickTextColor_Click"/>
                     </StackPanel>
                     <TextBlock x:Name="OpacityValueText" Foreground="White"/>
                     <Slider x:Name="BackgroundOpacitySlider" Minimum="0" Maximum="100" ValueChanged="BackgroundOpacity_Changed"/>
