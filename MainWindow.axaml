@@ -13,10 +13,17 @@
         CanResize="False"
         Opened="Window_Opened"
         Deactivated="Window_Deactivated">
+    <Window.Resources>
+        <SolidColorBrush x:Key="ModuleNameBrush" Color="#FFCCCCCC"/>
+        <SolidColorBrush x:Key="ModuleValueBrush" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="ModuleDetailBrush" Color="#FF8F8F9F"/>
+        <FontFamily x:Key="ModuleFontFamily">Arial</FontFamily>
+    </Window.Resources>
     <Canvas x:Name="RootCanvas" ClipToBounds="True">
         <!-- Info panel (position set from code) -->
         <Border x:Name="PanelBorder" Canvas.Left="0" Canvas.Top="4" Width="260"
-                Background="#E61E1E2E" CornerRadius="12" IsVisible="False">
+                Background="#E61E1E2E" CornerRadius="12" IsVisible="False"
+                PointerPressed="Panel_PointerPressed" PointerMoved="Panel_PointerMoved" PointerReleased="Panel_PointerReleased">
             <DockPanel LastChildFill="True" Margin="6">
                 <Border DockPanel.Dock="Top" Background="#33FFFFFF" CornerRadius="6" Padding="8,5" Margin="0,0,0,6">
                     <Grid ColumnDefinitions="*,Auto">
@@ -49,12 +56,12 @@
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <TextBlock Text="{Binding Icon}" FontSize="14"
                                                        Foreground="#FFF85556" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding DisplayName}" Foreground="#FFCCCCCC" FontSize="11"
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource ModuleNameBrush}" FontFamily="{DynamicResource ModuleFontFamily}" FontSize="11"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
-                                        <TextBlock Text="{Binding CurrentValue}" Foreground="White" FontSize="13"
+                                        <TextBlock Text="{Binding CurrentValue}" Foreground="{DynamicResource ModuleValueBrush}" FontFamily="{DynamicResource ModuleFontFamily}" FontSize="13"
                                                    TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                        <TextBlock Text="{Binding Detail}" Foreground="#FF8F8F9F" FontSize="10"
+                                        <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource ModuleDetailBrush}" FontFamily="{DynamicResource ModuleFontFamily}" FontSize="10"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"
                                                    IsVisible="{Binding Detail, Converter={x:Static conv:HasTextConverter.Instance}}"/>
                                     </StackPanel>

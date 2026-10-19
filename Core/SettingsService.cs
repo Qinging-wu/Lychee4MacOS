@@ -9,6 +9,17 @@ public sealed class AppSettings
     public bool AlertOnIpChange { get; set; } = true;
     public bool AlertOnQueryFailure { get; set; } = true;
     public bool SnapToEdge { get; set; } = false;
+    public string FloatingBallStyle { get; set; } = "default";
+    public string? CustomBallImagePath { get; set; }
+    public bool UseCustomPanelAppearance { get; set; }
+    public int PanelBackgroundRed { get; set; } = 30;
+    public int PanelBackgroundGreen { get; set; } = 30;
+    public int PanelBackgroundBlue { get; set; } = 46;
+    public int PanelBackgroundOpacity { get; set; } = 90;
+    public int PanelTextRed { get; set; } = 255;
+    public int PanelTextGreen { get; set; } = 255;
+    public int PanelTextBlue { get; set; } = 255;
+    public string PanelFontFamily { get; set; } = "Arial";
     public Dictionary<string, bool> ModuleEnabled { get; set; } = new();
 }
 

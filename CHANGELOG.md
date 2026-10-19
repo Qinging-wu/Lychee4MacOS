@@ -1,5 +1,13 @@
 # Changelog
 
+## Portable changes synced from Lychee-lite v2.0.0-beta.3
+
+| Change | Detail |
+|---|---|
+| 🎨 Floating ball styles | Choose a built-in style or import a PNG, JPEG, BMP, or GIF image |
+| ↔️ Resizable panel | Drag the outer edge or corner of the expanded panel; the floating ball stays in place |
+| 🖌️ Custom panel appearance | Set background opacity, background and text RGB colors, and a system font, with preview and reset |
+
 ## v1.0.0
 
 | Change | Detail |

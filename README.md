@@ -1,57 +1,37 @@
-# <img src="Assets/icon.ico" alt="Lychee for macOS" width="56" height="56" style="vertical-align: middle; margin-top: 8px"> Lychee for macOS
+# Lychee for macOS
 
-English | [简体中文](./README.zh-CN.md)
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-A tiny always-on-top floating ball for macOS that shows date & time, network speed, public IP, CPU, memory, and latency at a glance. Hover to expand the info panel; move away to collapse. Built on .NET 8 + Avalonia UI. There is currently no installer or `.app` bundle, and no background service is installed.
+Lychee is a small floating system monitor for macOS. Its always-on-top ball opens an information panel when you hover over it. The app is built with .NET 8 and Avalonia UI.
 
-## Attention! This project is currently still in testing. There are some issues with its use.
+> **Attention!** This project is currently still in testing. There may some issues with its use. Welcome PR.
 
-## 🔗 Relationship with Lychee (Windows)
+## Features
 
-Lychee for macOS is the macOS sibling of [Lychee](https://github.com/Qinging-wu/Lychee), the Windows version of this floating ball:
+- Date and time, refreshed every second
+- Network upload and download speeds
+- Public IP and approximate location, with alerts for IP changes, failed lookups, and recovery
+- CPU usage and memory usage
+- Network latency to several public endpoints
+- Built-in floating ball designs, plus custom PNG, JPEG, BMP, and animated GIF images
+- Resizable information panel
+- Panel appearance settings for background opacity, background and text colors, and system font, with preview and reset
+- Optional per-module toggles, pinning, and edge snapping
+- Menu bar controls for showing the panel, opening settings, and quitting
 
-- **Same product, ported interactions** — the floating ball, info panel, settings, and module toggles mirror the Windows version's behavior.
-- **Shared architecture, separate codebase** — `Core/` (module interface, manager, settings) keeps the same shape as the Windows repo, while the UI layer is rewritten on Avalonia because WPF/WinForms are Windows-only.
-- **Independently versioned** — this repo has its own releases and changelog starting at v1.0.0; version numbers do not track the Windows version.
-- **No Frame Performance (FPS) here** — the Windows version's frame monitoring (DWM desktop output / PresentMon per-app capture) relies on Windows-only APIs and is intentionally not ported to this repo. All other core modules are available.
+## Use
 
-## ✨ Features
+- Hover over the ball to open the panel; move away to collapse it.
+- Drag the ball to move it between screen locations. The panel flips to stay beside the ball.
+- Double-click the ball or use the pin button to keep the panel open.
+- Drag the expanded panel's outer edge or corner to resize it.
+- Open **Settings** from the panel or menu bar to change modules, alerts, ball design, and panel appearance.
+- Quit from the panel or menu bar.
 
-- **📅 Date & time** — refreshes every second
-- **🌐 Network speed** — auto-selects the active adapter, samples up/down rate every second
-- **📍 Public IP / location** — queries ip-api.com every 20s, shows a toast + system notification when the IP changes (optional)
-- **💻 CPU usage** — whole-system utilization via the Mach `host_statistics(HOST_CPU_LOAD_INFO)` counters, refreshes every second
-- **🧠 Memory** — total via `sysctl hw.memsize`, usage via `host_statistics(HOST_VM_INFO)` page counters (free + inactive pages)
-- **⏱️ Network latency** — pings 223.5.5.5 / 1.1.1.1 / 8.8.8.8 every 5s, reports the best RTT
+## Requirements and quick start
 
-Each module can be toggled on/off individually in Settings.
-
-### Differences from the Windows version
-
-| | Windows ([Lychee](https://github.com/Qinging-wu/Lychee)) | macOS (this repo) |
-|---|---|---|
-| UI framework | WPF + WinForms | Avalonia UI 11 |
-| Frame Performance (FPS) | ✅ DWM / PresentMon | ❌ Not ported (Windows-only APIs) |
-| Bouncy ball  | ✅ | ❌ Not ported |
-| IP change alert | In-app toast + tray balloon | In-app toast + system notification (AppleScript) |
-| Memory detail line | Free + page file | Free only (does not show a Windows-style page-file field) |
-
-## 🖱️ Usage
-
-- **👆 Hover** the ball to expand the panel; move away to collapse
-- **✋ Drag** the ball anywhere across monitors — the panel flips direction based on screen position
-- **👆👆 Double-click** the ball to pin/unpin the panel
-- **📌 Pin** — keep the panel open even when the mouse leaves
-- **⚙️ Settings** — per-module toggles, always-show panel, snap to edge, alert options
-- **◀️ Collapse** — force-close the panel
-- **❌ Quit** — exit Lychee
-- **MenuBar icon** — right-click for Show/Hide, Settings, Quit
-
-When the public IP changes (possible VPN drop or network switch), a red toast pops up in the bottom-right corner and a system notification shows the old and new IPs.
-
-## 🚀 Installation status and quick start
-
-There is currently no Homebrew formula, `.pkg`, `.dmg`, or `.app` installer. The following builds and runs the project from source and requires the **.NET 8.0+ SDK** on the Mac:
+- macOS 11 or later, Apple Silicon or Intel
+- .NET SDK 8.0 or later
 
 ```bash
 git clone https://github.com/Qinging-wu/Lychee4MacOS.git
@@ -59,143 +39,47 @@ cd Lychee4MacOS
 dotnet run
 ```
 
-Requirements: **macOS 11+** (Apple Silicon or Intel) with **.NET SDK 8.0+**.
+The ball appears near the right edge of the screen. Lychee adds a menu bar icon and hides its Dock icon. There is currently no `.app` bundle or downloadable installer.
 
-The floating ball appears on the right edge of the screen and a Lychee icon is added to the menu bar. The Dock icon is hidden automatically.
+### Build and publish
 
-To close, click **✕** on the panel or use the menu-bar icon → Quit Lychee.
-
-### Command-line installation (self-contained executable)
-
-You can publish the app into a user directory and run it from the command line, but this is not a native macOS application install: it does not create an `.app` bundle or add Lychee to Applications or Launchpad.
-
-Apple Silicon:
-
-```bash
-mkdir -p "$HOME/.local/lib/lychee" "$HOME/.local/bin"
-dotnet publish -c Release -r osx-arm64 --self-contained true \
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
-  -o "$HOME/.local/lib/lychee"
-ln -sf "$HOME/.local/lib/lychee/Lychee" "$HOME/.local/bin/lychee"
-"$HOME/.local/bin/lychee"
-```
-
-On an Intel Mac, replace `osx-arm64` with `osx-x64`. After a self-contained publish, the target Mac does not need a separate .NET Runtime, but the .NET SDK is still required to build it. If macOS blocks the unsigned executable on first launch, allow it under **System Settings → Privacy & Security**.
-
-## 🔧 Build
+Build:
 
 ```bash
 dotnet build -c Release
 ```
 
-Publish a self-contained raw executable (no `.app` bundle yet):
+Publish a self-contained executable for Apple Silicon or Intel:
 
 ```bash
-dotnet publish -c Release -r osx-arm64 --self-contained true   # Apple Silicon
-dotnet publish -c Release -r osx-x64 --self-contained true     # Intel
+dotnet publish -c Release -r osx-arm64 --self-contained true
+dotnet publish -c Release -r osx-x64 --self-contained true
 ```
 
-Output: `bin/Release/net8.0/osx-arm64/publish/Lychee` — run it directly from a terminal.
+The published executable can be run from a terminal. These commands do not create a macOS `.app` bundle.
 
-## 🏗️ Architecture
+## Platform differences and limitations
 
-```
-Lychee4MacOS/
-├── App.axaml(.cs)               # App entry; hides the Dock icon on macOS
-├── Program.cs
-├── MainWindow.axaml(.cs)        # Floating ball + info panel + interactions
-├── Core/                        # Core abstractions (shared shape with the Windows version)
-│   ├── IInfoModule.cs           # Module interface + InfoModuleBase
-│   ├── ModuleManager.cs         # Module registration / lifecycle
-│   ├── SettingsService.cs       # JSON settings persistence
-│   ├── TrayIconService.cs       # Menu bar / tray icon
-│   ├── AppLog.cs                # Rotating file logger
-│   └── IpChangedEventArgs.cs / QueryFailedEventArgs.cs / QueryRecoveredEventArgs.cs
-├── Modules/                     # Built-in modules
-│   ├── DateTimeModule.cs
-│   ├── NetworkSpeedModule.cs
-│   ├── PublicIpModule.cs
-│   ├── CpuModule.cs             # mach host_statistics(HOST_CPU_LOAD_INFO)
-│   ├── MemoryModule.cs          # sysctl hw.memsize + host_statistics(HOST_VM_INFO)
-│   └── LatencyModule.cs
-├── Platform/                    # Per-OS data sources (macOS first, Windows fallback)
-│   ├── SystemCpuTimes.cs        # mach host_statistics / GetSystemTimes
-│   ├── SystemMemory.cs          # sysctl + host_statistics / GlobalMemoryStatusEx
-│   ├── GlobalCursor.cs          # CGEventGetLocation / GetCursorPos
-│   ├── MacAppActivation.cs      # NSApplicationActivationPolicy (no Dock icon)
-│   └── MacNotifier.cs           # AppleScript display notification
-└── Views/
-    └── SettingsWindow.axaml(.cs)
+- Frame Performance (FPS), the bouncing ball, and audio level/spectrum monitoring from the Windows version are not included.
+- Memory usage is estimated from macOS memory counters; its figures may differ from Activity Monitor, and swap is not shown separately.
+- System notifications use AppleScript. macOS may ask you to allow notifications from Script Editor.
+- Some exclusive full-screen apps may cover the floating ball.
+- Retina and multi-display positioning still needs broader testing on physical Macs. Please include your display arrangement when reporting positioning issues.
+
+## Settings and logs
+
+Settings and logs are stored under:
+
+```text
+~/Library/Application Support/Lychee/
 ```
 
-### 🔌 Module interface
+Settings are saved in `settings.json`; the rotating application log is in `logs/lychee.log`.
 
-```csharp
-public interface IInfoModule : IDisposable
-{
-    string Id { get; }              // unique id
-    string DisplayName { get; }     // list label
-    string Icon { get; }            // emoji glyph
-    bool IsEnabled { get; set; }    // user toggle
-    string CurrentValue { get; }    // current value (data-bound)
-    string? Detail { get; }         // optional secondary line
-    event EventHandler? ValueChanged;
-    void Start();
-    void Stop();
-}
-```
+## Contributing
 
-### 📦 Adding a module
+Bug reports and pull requests are welcome. Please read the [contributing guide](./CONTRIBUTING.md), [Code of Conduct](./CODE_OF_CONDUCT.md), and [security policy](./SECURITY.md).
 
-1. Inherit `InfoModuleBase`, implement `Start()` / `Stop()`, and set `CurrentValue` when data updates (same pattern as the Windows version).
-2. Register it in `MainWindow.axaml.cs`:
+## License
 
-```csharp
-_moduleManager.RegisterModule(new WeatherModule());
-```
-
-3. Rebuild. The module appears in the info panel and settings toggle list automatically — no UI changes needed.
-
-## ⚙️ Settings
-
-`~/Library/Application Support/Lychee/settings.json`
-
-Same schema as the Windows version — you can copy a Windows `settings.json` over and the module toggles carry over.
-
-```json
-{
-  "AlwaysShowPanel": false,
-  "AlertOnIpChange": true,
-  "AlertOnQueryFailure": true,
-  "SnapToEdge": false,
-  "ModuleEnabled": {
-    "datetime": true,
-    "network-speed": true,
-    "public-ip": true,
-    "cpu": true,
-    "memory": true,
-    "latency": true
-  }
-}
-```
-
-Logs: `~/Library/Application Support/Lychee/logs/lychee.log`
-
-## ⚠️ Known limitations
-
-- Frame Performance (FPS) is not available — DWM and PresentMon are Windows-only
-- RAM is an estimate: used = total − (free + inactive pages). It moves in the same direction as Activity Monitor but the exact figures differ by design; macOS swap/virtual memory is not shown separately
-- System notifications are posted via AppleScript (`display notification`); macOS may ask you to allow notifications from "Script Editor" the first time
-- Some exclusive fullscreen apps may still cover the ball despite topmost
-- Retina and multi-monitor coordinate handling is implemented but not yet broadly verified on real hardware — if the ball, snapping, or toasts look misplaced, please report with your display arrangement (screenshot of System Settings → Displays)
-- No `.app` bundle yet: run via `dotnet run` or the published executable from a terminal; there is currently no downloadable installer
-
-## 🤝 Community
-
-- [Contributing guide](./CONTRIBUTING.md)
-- [Code of Conduct](./CODE_OF_CONDUCT.md)
-- [Security policy](./SECURITY.md)
-
-## 📄 License
-
-Lychee for macOS is licensed under the [MIT License](./LICENSE).
+MIT. See [LICENSE](./LICENSE).

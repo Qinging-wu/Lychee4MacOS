@@ -28,6 +28,47 @@
         </Border>
 
         <Border Background="#22FFFFFF" CornerRadius="8" Padding="12">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Floating ball" FontWeight="SemiBold" Foreground="#FFCCCCCC"/>
+                <Grid ColumnDefinitions="*,Auto">
+                    <ComboBox x:Name="BallStyleComboBox" SelectionChanged="BallStyle_Changed"/>
+                    <Button Grid.Column="1" Content="Import image…" Margin="8,0,0,0" Click="ImportBallImage_Click"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Expander Header="Custom panel appearance" Foreground="#FFCCCCCC">
+            <Border Background="#22FFFFFF" CornerRadius="8" Padding="10" Margin="0,4,0,0">
+                <StackPanel Spacing="8">
+                    <CheckBox x:Name="UseCustomAppearanceCheckBox" Content="Enable custom appearance"
+                              Checked="UseCustomAppearance_Changed" Unchecked="UseCustomAppearance_Changed"/>
+                    <TextBlock Text="Background RGB (0–255)" Foreground="#FFCCCCCC"/>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBox x:Name="BackgroundRedTextBox" Watermark="R" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="BackgroundGreenTextBox" Watermark="G" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="BackgroundBlueTextBox" Watermark="B" Width="58" TextChanged="AppearanceColor_Changed"/>
+                    </StackPanel>
+                    <TextBlock Text="Text RGB (0–255)" Foreground="#FFCCCCCC"/>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBox x:Name="TextRedTextBox" Watermark="R" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="TextGreenTextBox" Watermark="G" Width="58" TextChanged="AppearanceColor_Changed"/>
+                        <TextBox x:Name="TextBlueTextBox" Watermark="B" Width="58" TextChanged="AppearanceColor_Changed"/>
+                    </StackPanel>
+                    <TextBlock x:Name="OpacityValueText" Foreground="White"/>
+                    <Slider x:Name="BackgroundOpacitySlider" Minimum="0" Maximum="100" ValueChanged="BackgroundOpacity_Changed"/>
+                    <TextBlock Text="Panel font" Foreground="#FFCCCCCC"/>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ComboBox x:Name="PanelFontComboBox" Width="200" SelectionChanged="PanelFont_Changed"/>
+                        <Button Content="Reset" Click="ResetAppearance_Click"/>
+                    </StackPanel>
+                    <Border x:Name="AppearancePreviewBorder" CornerRadius="5" Padding="8">
+                        <TextBlock x:Name="AppearancePreviewText" Text="Lychee · Sample text 123"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Expander>
+
+        <Border Background="#22FFFFFF" CornerRadius="8" Padding="12">
             <StackPanel Spacing="10">
                 <TextBlock Text="Behavior" FontWeight="SemiBold" Foreground="#FFCCCCCC"/>
                 <CheckBox x:Name="AlwaysShowCheckBox" Content="Always show panel (pin)"

@@ -9,9 +9,11 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using System.Runtime.InteropServices;
 using Lychee.Core;
 using Lychee.Modules;
 using Lychee.Platform;
+using SkiaSharp;
 
 namespace Lychee;
 
@@ -45,6 +47,17 @@ public partial class MainWindow : Window
     private bool _restorePinnedAfterDrag;
     private Point _dragStartCursor;              // screen space (same units as Window.Position)
     private PixelPoint _dragOriginWindow;        // window origin when the drag gesture began
+    private double _panelWidth = PanelWidth;
+    private bool _resizingPanel;
+    private Point _resizeStartCursor;
+    private double _resizeStartWidth;
+    private double _resizeStartHeight;
+    private DispatcherTimer? _ballGifTimer;
+    private IReadOnlyList<(Bitmap Frame, TimeSpan Delay)>? _ballGifFrames;
+    private Bitmap? _ballStyleBitmap;
+    private int _ballGifFrameIndex;
+    private string? _appliedBallStyle;
+    private string? _appliedCustomBallPath;
 
     public MainWindow()
     {
@@ -261,6 +274,9 @@ public partial class MainWindow : Window
     private void ApplySettings()
     {
         var s = _settings.Current;
+        if (_appliedBallStyle != s.FloatingBallStyle || _appliedCustomBallPath != s.CustomBallImagePath)
+            ApplyBallStyle();
+        ApplyPanelAppearance();
 
         if (s.AlwaysShowPanel)
         {
@@ -279,21 +295,128 @@ public partial class MainWindow : Window
 
     private void ApplyBallStyle()
     {
+        _ballGifTimer?.Stop();
+        _ballGifTimer = null;
+        if (_ballGifFrames != null)
+            foreach (var frame in _ballGifFrames) frame.Frame.Dispose();
+        _ballGifFrames = null;
+        _ballStyleBitmap?.Dispose();
+        _ballStyleBitmap = null;
+        _ballGifFrameIndex = 0;
+        _appliedBallStyle = _settings.Current.FloatingBallStyle;
+        _appliedCustomBallPath = _settings.Current.CustomBallImagePath;
         try
         {
-            using var stream = AssetLoader.Open(new Uri("avares://Lychee/Assets/icon.png"));
+            var style = _settings.Current.FloatingBallStyle;
+            var asset = style switch
+            {
+                "basketball" => "basketball.png",
+                "planet" => "planet.png",
+                "moon" => "moon.png",
+                "pixel" => "pixel-lychee.gif",
+                "custom" when File.Exists(_settings.Current.CustomBallImagePath) => _settings.Current.CustomBallImagePath!,
+                _ => "icon.png"
+            };
+            using var stream = Path.IsPathRooted(asset)
+                ? File.OpenRead(asset)
+                : AssetLoader.Open(new Uri($"avares://Lychee/Assets/{asset}"));
+            if (string.Equals(Path.GetExtension(asset), ".gif", StringComparison.OrdinalIgnoreCase))
+            {
+                _ballGifFrames = DecodeGifFrames(stream);
+                var first = _ballGifFrames[0];
+                BallEllipse.Fill = new ImageBrush { Source = first.Frame, Stretch = Stretch.UniformToFill };
+                if (_ballGifFrames.Count > 1)
+                {
+                    _ballGifTimer = new DispatcherTimer { Interval = first.Delay };
+                    _ballGifTimer.Tick += BallGifTimer_Tick;
+                    _ballGifTimer.Start();
+                }
+                return;
+            }
+
             var bitmap = new Bitmap(stream);
+            _ballStyleBitmap = bitmap;
             BallEllipse.Fill = new ImageBrush
             {
                 Source = bitmap,
                 Stretch = Stretch.UniformToFill
             };
+
         }
         catch (Exception ex)
         {
             AppLog.Error("ball-style", ex);
             BallEllipse.Fill = Brushes.Gray;
         }
+    }
+
+    private static IReadOnlyList<(Bitmap Frame, TimeSpan Delay)> DecodeGifFrames(Stream stream)
+    {
+        using var data = SKData.Create(stream);
+        using var codec = SKCodec.Create(data) ?? throw new InvalidDataException("Unable to decode GIF image.");
+        var count = Math.Clamp(codec.FrameCount, 1, 120);
+        var info = new SKImageInfo(48, 48, SKColorType.Bgra8888, SKAlphaType.Premul);
+        var frames = new List<(Bitmap, TimeSpan)>(count);
+        for (var index = 0; index < count; index++)
+        {
+            var pixels = new byte[info.BytesSize];
+            var options = new SKCodecOptions(index);
+            var address = Marshal.AllocHGlobal(info.BytesSize);
+            SKCodecResult result;
+            try
+            {
+                Marshal.Copy(new byte[info.BytesSize], 0, address, info.BytesSize);
+                result = codec.GetPixels(info, address, options);
+                Marshal.Copy(address, pixels, 0, pixels.Length);
+            }
+            finally { Marshal.FreeHGlobal(address); }
+            if (result is not (SKCodecResult.Success or SKCodecResult.IncompleteInput))
+                throw new InvalidDataException($"Unable to decode GIF frame {index}: {result}.");
+
+            var bitmap = new WriteableBitmap(new PixelSize(48, 48), new Vector(96, 96),
+                Avalonia.Platform.PixelFormat.Bgra8888, Avalonia.Platform.AlphaFormat.Premul);
+            using (var locked = bitmap.Lock())
+            {
+                for (var row = 0; row < 48; row++)
+                    Marshal.Copy(pixels, row * 48 * 4, IntPtr.Add(locked.Address, row * locked.RowBytes), 48 * 4);
+            }
+
+            var delayMs = codec.GetFrameInfo(index, out var frameInfo) ? frameInfo.Duration : 100;
+            frames.Add((bitmap, TimeSpan.FromMilliseconds(Math.Clamp(delayMs, 20, 10000))));
+        }
+        return frames;
+    }
+
+    private void BallGifTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_ballGifFrames is not { Count: > 1 } frames || BallEllipse.Fill is not ImageBrush brush) return;
+        _ballGifFrameIndex = (_ballGifFrameIndex + 1) % frames.Count;
+        brush.Source = frames[_ballGifFrameIndex].Frame;
+        _ballGifTimer!.Interval = frames[_ballGifFrameIndex].Delay;
+    }
+
+    private void ApplyPanelAppearance()
+    {
+        var s = _settings.Current;
+        if (!s.UseCustomPanelAppearance)
+        {
+            PanelBorder.Background = new SolidColorBrush(Color.FromArgb(230, 30, 30, 46));
+            Resources["ModuleNameBrush"] = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+            Resources["ModuleValueBrush"] = Brushes.White;
+            Resources["ModuleDetailBrush"] = new SolidColorBrush(Color.FromRgb(143, 143, 159));
+            Resources["ModuleFontFamily"] = new FontFamily("Arial");
+            return;
+        }
+        var opacity = (byte)Math.Round(Math.Clamp(s.PanelBackgroundOpacity, 0, 100) * 2.55);
+        PanelBorder.Background = new SolidColorBrush(Color.FromArgb(opacity,
+            (byte)Math.Clamp(s.PanelBackgroundRed, 0, 255), (byte)Math.Clamp(s.PanelBackgroundGreen, 0, 255), (byte)Math.Clamp(s.PanelBackgroundBlue, 0, 255)));
+        var text = new SolidColorBrush(Color.FromRgb((byte)Math.Clamp(s.PanelTextRed, 0, 255),
+            (byte)Math.Clamp(s.PanelTextGreen, 0, 255), (byte)Math.Clamp(s.PanelTextBlue, 0, 255)));
+        Resources["ModuleNameBrush"] = text;
+        Resources["ModuleValueBrush"] = text;
+        Resources["ModuleDetailBrush"] = text;
+        try { Resources["ModuleFontFamily"] = new FontFamily(s.PanelFontFamily); }
+        catch (ArgumentException) { Resources["ModuleFontFamily"] = new FontFamily("Arial"); }
     }
 
     // ---------- expand / collapse ----------
@@ -309,12 +432,12 @@ public partial class MainWindow : Window
 
         var visibleModules = _moduleManager.Modules.Count(m => m.IsEnabled);
         var targetHeight = CalcExpandedHeight(visibleModules);
-        var targetWidth = PanelWidth + BallSlot + PanelMargin;
+        var targetWidth = _panelWidth + BallSlot + PanelMargin;
 
         // Place the ball inside the expanded window so it stays on the same
         // screen pixel. If that window would cross the menu bar or dock,
         // clamp the window and slide the ball inside it by the same amount.
-        var ballLeft = _isRightSide ? PanelWidth + PanelMargin : BallMargin;
+        var ballLeft = _isRightSide ? _panelWidth + PanelMargin : BallMargin;
         var ballTop = _isBottomSide ? targetHeight - BallSlot + BallMargin : BallMargin;
         var windowLeft = ballScreen.X - ballLeft;
         var windowTop = ballScreen.Y - ballTop;
@@ -352,6 +475,7 @@ public partial class MainWindow : Window
         Height = targetHeight;
 
         PanelBorder.Height = targetHeight - PanelMargin * 2;
+        PanelBorder.Width = _panelWidth;
         PanelBorder.IsVisible = true;
         Canvas.SetLeft(PanelBorder, _isRightSide ? PanelMargin : BallSlot);
         Canvas.SetTop(PanelBorder, PanelMargin);
@@ -382,6 +506,72 @@ public partial class MainWindow : Window
         SetWindowPosPx(ballScreen.X - DipToScreen(BallMargin), ballScreen.Y - DipToScreen(BallMargin));
 
         PanelBorder.IsVisible = false;
+    }
+
+    private void Panel_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!_isExpanded || !e.GetCurrentPoint(PanelBorder).Properties.IsLeftButtonPressed) return;
+        var point = e.GetPosition(PanelBorder);
+        const double grip = 9;
+        var onOuterHorizontalEdge = _isRightSide ? point.X <= grip : point.X >= PanelBorder.Bounds.Width - grip;
+        var onOuterVerticalEdge = _isBottomSide ? point.Y <= grip : point.Y >= PanelBorder.Bounds.Height - grip;
+        if (!onOuterHorizontalEdge && !onOuterVerticalEdge) return;
+
+        _resizingPanel = true;
+        _resizeStartCursor = RawCursor();
+        _resizeStartWidth = _panelWidth;
+        _resizeStartHeight = Height;
+        e.Pointer.Capture(PanelBorder);
+        e.Handled = true;
+    }
+
+    private void Panel_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!_resizingPanel) return;
+        var cursor = RawCursor();
+        var dx = cursor.X - _resizeStartCursor.X;
+        var dy = cursor.Y - _resizeStartCursor.Y;
+        _panelWidth = Math.Clamp(_resizeStartWidth + (_isRightSide ? -dx : dx), 160, 560);
+        var height = Math.Clamp(_resizeStartHeight + (_isBottomSide ? -dy : dy), 180, 800);
+        var ball = BallScreenPos();
+
+        Width = _panelWidth + BallSlot + PanelMargin;
+        Height = height;
+        PanelBorder.Width = _panelWidth;
+        PanelBorder.Height = height - PanelMargin * 2;
+        if (_isRightSide)
+        {
+            Canvas.SetLeft(PanelBorder, PanelMargin);
+            Canvas.SetLeft(BallEllipse, _panelWidth + PanelMargin);
+            SetWindowPosPx(ball.X - DipToScreen(_panelWidth + PanelMargin), Position.Y);
+        }
+        else
+        {
+            Canvas.SetLeft(BallEllipse, BallMargin);
+            Canvas.SetLeft(PanelBorder, BallSlot);
+            SetWindowPosPx(ball.X - DipToScreen(BallMargin), Position.Y);
+        }
+        if (_isBottomSide)
+        {
+            Canvas.SetTop(BallEllipse, height - BallSlot + BallMargin);
+            SetWindowPosPx(Position.X, ball.Y - DipToScreen(height - BallSlot + BallMargin));
+        }
+        else
+        {
+            Canvas.SetTop(BallEllipse, BallMargin);
+            SetWindowPosPx(Position.X, ball.Y - DipToScreen(BallMargin));
+        }
+        Canvas.SetTop(PanelBorder, PanelMargin);
+        SyncBallGlow();
+        e.Handled = true;
+    }
+
+    private void Panel_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_resizingPanel) return;
+        _resizingPanel = false;
+        e.Pointer.Capture(null);
+        e.Handled = true;
     }
 
     // ---------- hover ----------
