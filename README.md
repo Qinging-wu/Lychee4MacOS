@@ -76,6 +76,10 @@ Settings and logs are stored under:
 
 Settings are saved in `settings.json`; the rotating application log is in `logs/lychee.log`.
 
+## Acknowledgments
+
+Special thanks to [Icyjerry](https://github.com/Icyjerry) for [PR #1](https://github.com/Qinging-wu/Lychee4MacOS/pull/1), which improved ball dragging, panel placement, and the menu bar icon.
+
 ## Contributing
 
 Bug reports and pull requests are welcome. Please read the [contributing guide](./CONTRIBUTING.md), [Code of Conduct](./CODE_OF_CONDUCT.md), and [security policy](./SECURITY.md).

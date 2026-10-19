@@ -76,6 +76,10 @@ dotnet publish -c Release -r osx-x64 --self-contained true
 
 设置文件为 `settings.json`；滚动日志位于 `logs/lychee.log`。
 
+## 特别鸣谢
+
+特别感谢 [Icyjerry](https://github.com/Icyjerry) 提交的 [PR #1](https://github.com/Qinging-wu/Lychee4MacOS/pull/1)，修复并改进了悬浮球拖动、面板位置和菜单栏图标。
+
 ## 参与贡献
 
 欢迎提交问题反馈和 Pull Request。请先阅读[贡献指南](./CONTRIBUTING.md)、[行为准则](./CODE_OF_CONDUCT.md)和[安全策略](./SECURITY.md)。
